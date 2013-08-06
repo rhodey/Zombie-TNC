@@ -1,26 +1,26 @@
 package org.anhonesteffort.chubsat.kiss;
 
 public class KISSProtocol {
-    public static final char CHAR_FEND = 0xC0;
-    public static final char CHAR_FESC = 0xDB;
-    public static final char CHAR_TFEND = 0xDC;
-    public static final char CHAR_TFESC = 0xDD;
+    public static final byte CODE_FEND = (byte)0xC0;
+    public static final byte CODE_FESC = (byte)0xDB;
+    public static final byte CODE_TFEND = (byte)0xDC;
+    public static final byte CODE_TFESC = (byte)0xDD;
 
-    public static final char COMMAND_DATA = 0x00;
-    public static final char COMMAND_TX_DELAY = 0x01;
-    public static final char COMMAND_P = 0x02;
-    public static final char COMMAND_SLOT_TIME = 0x03;
-    public static final char COMMAND_TX_TAIL = 0x04;
-    public static final char COMMAND_FULL_DUPLEX = 0x05;
-    public static final char COMMAND_SET_HARDWARE = 0x06;
-    public static final char COMMAND_RETURN = 0xFF;
+    public static final byte COMMAND_DATA = 0x00;
+    public static final byte COMMAND_TX_DELAY = 0x01;
+    public static final byte COMMAND_P = 0x02;
+    public static final byte COMMAND_SLOT_TIME = 0x03;
+    public static final byte COMMAND_TX_TAIL = 0x04;
+    public static final byte COMMAND_FULL_DUPLEX = 0x05;
+    public static final byte COMMAND_SET_HARDWARE = 0x06;
+    public static final byte COMMAND_RETURN = (byte)0xFF;
 
-    public static byte createCommandByte(int port, char command) throws IllegalArgumentException {
+    public static byte createCommandByte(int port, byte command) throws IllegalArgumentException {
         byte out;
 
         // Special case return command.
         if(command == COMMAND_RETURN)
-            return (byte)COMMAND_RETURN;
+            return COMMAND_RETURN;
 
         else if(port > 15 || port < 0)
             throw new IllegalArgumentException("Port out of range, values 0 - 15 allowed.");
@@ -44,21 +44,21 @@ public class KISSProtocol {
         byte[] out;
 
         for(int i = 0; i < data.length; i++) {
-            if(data[i] == (byte)CHAR_FEND || data[i] == (byte)CHAR_FESC)
+            if(data[i] == CODE_FEND || data[i] == CODE_FESC)
                 special_count++;
         }
         out = new byte[data.length + special_count];
         special_count = 0;
 
         for(int i = 0; i < out.length; i++) {
-            if(data[i - special_count] == (byte)CHAR_FEND) {
-                out[i++] = (byte)CHAR_FESC;
-                out[i] = (byte)CHAR_TFEND;
+            if(data[i - special_count] == CODE_FEND) {
+                out[i++] = CODE_FESC;
+                out[i] = CODE_TFEND;
                 special_count++;
             }
-            else if(data[i - special_count] == (byte)CHAR_FESC) {
-                out[i++] = (byte)CHAR_FESC;
-                out[i] = (byte)CHAR_TFESC;
+            else if(data[i - special_count] == CODE_FESC) {
+                out[i++] = CODE_FESC;
+                out[i] = CODE_TFESC;
                 special_count++;
             }
             else
@@ -72,21 +72,21 @@ public class KISSProtocol {
         byte[] out;
 
         for(int i = 0; i < data.length; i++) {
-            if(data[i] == CHAR_FEND || data[i] == CHAR_FESC)
+            if(data[i] == (char)CODE_FEND || data[i] == (char)CODE_FESC)
                 special_count++;
         }
         out = new byte[data.length + special_count];
         special_count = 0;
 
         for(int i = 0; i < out.length; i++) {
-            if(data[i - special_count] == CHAR_FEND) {
-                out[i++] = (byte)CHAR_FESC;
-                out[i] = (byte)CHAR_TFEND;
+            if(data[i - special_count] == (char)CODE_FEND) {
+                out[i++] = CODE_FESC;
+                out[i] = CODE_TFEND;
                 special_count++;
             }
-            else if(data[i - special_count] == CHAR_FESC) {
-                out[i++] = (byte)CHAR_FESC;
-                out[i] = (byte)CHAR_TFESC;
+            else if(data[i - special_count] == (char)CODE_FESC) {
+                out[i++] = CODE_FESC;
+                out[i] = CODE_TFESC;
                 special_count++;
             }
             else
@@ -101,7 +101,7 @@ public class KISSProtocol {
         byte[] out;
 
         for(int i = 0; i < data.length - 1; i++) {
-            if(data[i] == (byte)CHAR_FESC && (data[i + 1] == (byte)CHAR_TFESC || data[i + 1] == (byte)CHAR_TFEND))
+            if(data[i] == CODE_FESC && (data[i + 1] == CODE_TFESC || data[i + 1] == CODE_TFEND))
                 special_count++;
         }
         out = new byte[data.length - special_count];
@@ -109,13 +109,13 @@ public class KISSProtocol {
 
         for(int i = 0; i < data.length; i++) {
             found = false;
-            if(i != (data.length - 1) && data[i] == (byte)CHAR_FESC) {
-                if(data[i + 1] == (byte)CHAR_TFEND) {
-                    out[i++ - special_count++] = (byte)CHAR_FEND;
+            if(i != (data.length - 1) && data[i] == CODE_FESC) {
+                if(data[i + 1] == CODE_TFEND) {
+                    out[i++ - special_count++] = CODE_FEND;
                     found = true;
                 }
-                else if(data[i + 1] == (byte)CHAR_TFESC) {
-                    out[i++ - special_count++] = (byte)CHAR_FESC;
+                else if(data[i + 1] == CODE_TFESC) {
+                    out[i++ - special_count++] = CODE_FESC;
                     found = true;
                 }
             }

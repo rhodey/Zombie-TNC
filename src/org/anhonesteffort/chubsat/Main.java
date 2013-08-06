@@ -1,6 +1,7 @@
 package org.anhonesteffort.chubsat;
 
 import jssc.SerialPort;
+import jssc.SerialPortEvent;
 import org.anhonesteffort.chubsat.ax25.AX25UIFrame;
 import org.anhonesteffort.chubsat.kiss.KISSPort;
 import org.anhonesteffort.chubsat.kiss.KISSProtocol;
