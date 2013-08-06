@@ -1,10 +1,8 @@
 package org.anhonesteffort.chubsat;
 
 import jssc.SerialPort;
-import org.anhonesteffort.chubsat.ax25.AX25Protocol;
 import org.anhonesteffort.chubsat.ax25.AX25UIFrame;
-import org.anhonesteffort.chubsat.kiss.KISSTNCPort;
-import org.anhonesteffort.chubsat.tnc.CRC16;
+import org.anhonesteffort.chubsat.kiss.KISSPort;
 
 public class Main {
 
@@ -15,11 +13,10 @@ public class Main {
             tncPort.openPort();
             tncPort.setParams(SerialPort.BAUDRATE_9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
-            // Create a new KISSTNCPort using the configured serial port.
-            KISSTNCPort tnc = new KISSTNCPort(tncPort);
-
-            // Make sure the TNC is in full duplex mode.
-            tnc.setFullDuplex(0);
+            // Create a new KISSPort using the configured serial port and add a KISSFrameListener.
+            KISSPort tnc = new KISSPort(tncPort);
+            KISSFrameReceiver frameReceiver = new KISSFrameReceiver();
+            tnc.addKISSFrameListener(frameReceiver);
 
             // Transmitting arbitrary data.
             tnc.sendData(0, "ChubSat, truth prevails.".toCharArray());

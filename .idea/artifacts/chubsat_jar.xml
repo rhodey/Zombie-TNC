@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="chubsat:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/chubsat_jar</output-path>
-    <root id="archive" name="chubsat.jar">
-      <element id="module-output" name="chubsat" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../jSSC-2.6.0-Release/jssc.jar" path-in-jar="/" />
-    </root>
-  </artifact>
-</component>

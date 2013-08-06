@@ -9,16 +9,16 @@ public class AX25UIFrame {
     private byte destination_ssid;
     private byte[] address_field;
 
-    private byte control_field = AX25Protocol.CONTROL_UI_F;
-    private byte pid_field = (byte)AX25Protocol.PID_NO_L3_PROTOCOL;
+    private byte control_field = AX25Protocol.CONTROL_UI_FINAL;
+    private byte pid_field = (byte)AX25Protocol.PID_NO_LAYER_3_PROTOCOL;
 
     private byte[] info_field = new byte[] {};
 
     public AX25UIFrame(char[] source_address, char[] destination_address) {
         this.source_address = source_address;
-        this.source_ssid = AX25Protocol.SSID_DEFAULT;
+        this.source_ssid = AX25Protocol.SSID_COMMAND_SOURCE_DEFAULT;
         this.destination_address = destination_address;
-        this.destination_ssid = AX25Protocol.SSID_DEFAULT;
+        this.destination_ssid = AX25Protocol.SSID_COMMAND_DESTINATION_DEFAULT;
         address_field = AX25Protocol.createAddressField(source_address, destination_address);
     }
 

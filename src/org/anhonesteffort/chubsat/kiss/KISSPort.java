@@ -1,15 +1,44 @@
 package org.anhonesteffort.chubsat.kiss;
 
 import jssc.SerialPort;
+import jssc.SerialPortEvent;
+import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import org.anhonesteffort.chubsat.StringUtils;
 import org.anhonesteffort.chubsat.ax25.AX25UIFrame;
 
-public class KISSTNCPort {
-    SerialPort serialPort;
+import java.util.ArrayList;
 
-    public KISSTNCPort(SerialPort tncPort) {
-        serialPort = tncPort;
+public class KISSPort implements SerialPortEventListener {
+    private SerialPort serialPort;
+    private ArrayList<KISSFrameListener> kissFrameListeners;
+
+    public KISSPort(SerialPort serialPort) {
+        this.serialPort = serialPort;
+        kissFrameListeners = new ArrayList<KISSFrameListener>();
+    }
+
+    public void serialEvent(SerialPortEvent serialPortEvent) {
+        byte[] frame;
+
+        if(serialPortEvent.isRXCHAR()) {
+            try {
+                frame = serialPort.readBytes();
+                for(KISSFrameListener listener : kissFrameListeners)
+                    listener.onKISSFrameReceived(frame);
+            }
+            catch (SerialPortException e) {
+                System.out.println("Error reading bytes from port: " + e);
+            }
+        }
+    }
+
+    public void addKISSFrameListener(KISSFrameListener listener) {
+        kissFrameListeners.add(listener);
+    }
+
+    public void removeKISSFrameListener(KISSFrameListener listener) {
+        kissFrameListeners.remove(listener);
     }
 
     public void sendFrame(AX25UIFrame frame) throws SerialPortException {

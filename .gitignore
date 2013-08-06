@@ -12,6 +12,7 @@ lint.xml
 *.class
 
 # generated files
+out/
 bin/
 gen/
 
@@ -20,3 +21,4 @@ local.properties
 .project
 .settings
 .classpath
+.idea/
