@@ -4,8 +4,8 @@ import jssc.SerialPort;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortEvent;
 
-public interface KISSFrameListener {
+public interface KISSDataListener {
 
-    public void onKISSFrameReceived(byte[] frame);
+    public void onDataReceived(byte[] data);
 
 }

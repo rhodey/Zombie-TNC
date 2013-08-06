@@ -3,6 +3,7 @@ package org.anhonesteffort.chubsat;
 import jssc.SerialPort;
 import org.anhonesteffort.chubsat.ax25.AX25UIFrame;
 import org.anhonesteffort.chubsat.kiss.KISSPort;
+import org.anhonesteffort.chubsat.kiss.KISSProtocol;
 
 public class Main {
 
@@ -10,13 +11,13 @@ public class Main {
         try {
             // Open and configure a serial port connected to a TNC in KISS mode.
             SerialPort tncPort = new SerialPort("COM9");
-            tncPort.openPort();
-            tncPort.setParams(SerialPort.BAUDRATE_9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+            //tncPort.openPort();
+            //tncPort.setParams(SerialPort.BAUDRATE_9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
-            // Create a new KISSPort using the configured serial port and add a KISSFrameListener.
+            // Create a new KISSPort using the configured serial port and add a KISSDataListener.
             KISSPort tnc = new KISSPort(tncPort);
-            KISSFrameReceiver frameReceiver = new KISSFrameReceiver();
-            tnc.addKISSFrameListener(frameReceiver);
+            KISSDataReceiver dataReceiver = new KISSDataReceiver();
+            tnc.addKISSDataListener(dataReceiver);
 
             // Transmitting arbitrary data.
             tnc.sendData(0, "ChubSat, truth prevails.".toCharArray());
@@ -28,7 +29,7 @@ public class Main {
             tnc.sendFrame(frame);
 
             // Clean up.
-            tncPort.closePort();
+            //tncPort.closePort();
         }
         catch(Exception e) {
             System.out.println(e.toString());
