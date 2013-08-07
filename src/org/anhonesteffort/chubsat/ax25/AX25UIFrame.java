@@ -1,20 +1,21 @@
 package org.anhonesteffort.chubsat.ax25;
 
+import org.anhonesteffort.chubsat.StringUtils;
 import org.anhonesteffort.chubsat.ax25.AX25Protocol;
 
 public class AX25UIFrame {
-    private char[] source_address;
+    private byte[] source_address;
     private byte source_ssid;
-    private char[] destination_address;
+    private byte[] destination_address;
     private byte destination_ssid;
     private byte[] address_field;
 
     private byte control_field = AX25Protocol.CONTROL_UI_FINAL;
-    private byte pid_field = (byte)AX25Protocol.PID_NO_LAYER_3_PROTOCOL;
+    private byte pid_field = AX25Protocol.PID_NO_LAYER_3_PROTOCOL;
 
     private byte[] info_field = new byte[] {};
 
-    public AX25UIFrame(char[] source_address, char[] destination_address) {
+    public AX25UIFrame(byte[] source_address, byte[] destination_address) {
         this.source_address = source_address;
         this.source_ssid = AX25Protocol.SSID_COMMAND_SOURCE_DEFAULT;
         this.destination_address = destination_address;
@@ -22,7 +23,7 @@ public class AX25UIFrame {
         address_field = AX25Protocol.createAddressField(source_address, destination_address);
     }
 
-    public AX25UIFrame(char[] source_address, byte source_ssid, char[] destination_address, byte destination_ssid) {
+    public AX25UIFrame(byte[] source_address, byte source_ssid, byte[] destination_address, byte destination_ssid) {
         this.source_address = source_address;
         this.source_ssid = source_ssid;
         this.destination_address = destination_address;
@@ -30,7 +31,7 @@ public class AX25UIFrame {
         address_field = AX25Protocol.createAddressField(source_address, source_ssid, destination_address, destination_ssid);
     }
 
-    public char[] getSourceAddress() {
+    public byte[] getSourceAddress() {
         return source_address;
     }
 
@@ -38,7 +39,7 @@ public class AX25UIFrame {
         return source_ssid;
     }
 
-    public char[] getDestinationAddress() {
+    public byte[] getDestinationAddress() {
         return destination_address;
     }
 
@@ -94,21 +95,5 @@ public class AX25UIFrame {
 
         return out;
     }
-
-    public char[] toCharArray() {
-        char[] out = new char[16 + info_field.length];
-
-        for(int i = 0; i < address_field.length; i++)
-            out[i] = (char)address_field[i];
-
-        out[14] = (char)control_field;
-        out[15] = (char)pid_field;
-
-        for(int i = 0; i < info_field.length; i++)
-            out[i + 16] = (char)info_field[i];
-
-        return out;
-    }
-
 
 }

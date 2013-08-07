@@ -11,12 +11,14 @@ import java.util.ArrayList;
 public class KISSPort /*implements SerialPortEventListener*/ {
     private SerialPort serialPort;
     private ArrayList<KISSDataListener> kissFrameListeners;
-    private KISSState state = KISSState.SEARCH_FEND;
     private byte received_port;
     private byte received_command;
     private ArrayList<Byte> receivedData;
 
+    SerialPortEvent fakeEvent = new SerialPortEvent("COM9", SerialPortEvent.RXCHAR, 20);
+
     private enum KISSState {SEARCH_FEND, SEARCH_COMMAND, SEARCH_DATA};
+    private KISSState state = KISSState.SEARCH_FEND;
 
     public KISSPort(SerialPort serialPort) throws SerialPortException {
         this.serialPort = serialPort;
@@ -85,9 +87,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
         kissFrameListeners.remove(listener);
     }
 
-    public void sendFrame(AX25UIFrame frame) throws SerialPortException {
-        System.out.println("to tnc: " + StringUtils.getHexString(frame.toByteArray()));
-        //serialPort.writeBytes(frame.toByteArray());
+    public void sendFrame(int port, AX25UIFrame frame) throws SerialPortException {
+        sendData(port, frame.toByteArray());
     }
 
     public void sendData(int port, byte[] data) throws SerialPortException {
@@ -103,24 +104,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
-        //serialPort.writeBytes(frame);
-    }
-
-    public void sendData(int port, char[] data) throws SerialPortException {
-        byte[] escaped_data;
-        byte[] frame;
-
-        escaped_data = KISSProtocol.escapeData(data);
-        frame = new byte[escaped_data.length + 3];
-
-        frame[0] = KISSProtocol.CODE_FEND;
-        frame[1] = KISSProtocol.createCommandByte(port, KISSProtocol.COMMAND_DATA);
-        for(int i = 0; i < escaped_data.length; i++)
-            frame[i + 2] = escaped_data[i];
-        frame[frame.length - 1] = KISSProtocol.CODE_FEND;
-
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + new String(frame));
+        serialEvent(fakeEvent, frame);
         //serialPort.writeBytes(frame);
     }
 
@@ -131,7 +116,7 @@ public class KISSPort /*implements SerialPortEventListener*/ {
         frame[2] = 0x00;
         frame[3] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + StringUtils.getHexString(frame));
         //serialPort.writeBytes(frame);
     }
 
@@ -142,7 +127,7 @@ public class KISSPort /*implements SerialPortEventListener*/ {
         frame[2] = 0x01;
         frame[3] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + StringUtils.getHexString(frame));
         //serialPort.writeBytes(frame);
     }
 
@@ -162,7 +147,7 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + StringUtils.getHexString(frame));
         //serialPort.writeBytes(frame);
     }
 
@@ -182,7 +167,7 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + StringUtils.getHexString(frame));
         //serialPort.writeBytes(frame);
     }
 
@@ -199,7 +184,7 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + StringUtils.getHexString(frame));
         //serialPort.writeBytes(frame);
     }
 
@@ -219,7 +204,7 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + StringUtils.getHexString(frame));
         //serialPort.writeBytes(frame);
     }
 
@@ -236,7 +221,7 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + StringUtils.getHexString(frame));
         //serialPort.writeBytes(frame);
     }
 
@@ -247,7 +232,7 @@ public class KISSPort /*implements SerialPortEventListener*/ {
         frame[2] = (byte)0xFF;
         frame[3] = KISSProtocol.CODE_FEND;
 
-        System.out.println("to tnc: " + StringUtils.getHexString(frame));
+        System.out.println("frame to tnc: " + StringUtils.getHexString(frame));
         //serialPort.writeBytes(frame);
     }
 }

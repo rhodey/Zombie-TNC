@@ -1,8 +1,8 @@
 package org.anhonesteffort.chubsat.ax25;
 
 public class AX25Protocol {
-    public static final char CONTROL_UI_POLL = 0x13;
-    public static final char CONTROL_UI_FINAL = 0x03;
+    public static final byte CONTROL_UI_POLL = 0x13;
+    public static final byte CONTROL_UI_FINAL = 0x03;
 
     public static final byte PID_ISO_8208 = 0x01;
     public static final byte PID_COMPRESSED_TCP = 0x06;
@@ -26,7 +26,7 @@ public class AX25Protocol {
     public static final byte SSID_RESPONSE_SOURCE_DEFAULT = (byte)0xE1;
 
 
-    public static byte[] createAddressField(char[] source_address, char[] destination_address) {
+    public static byte[] createAddressField(byte[] source_address, byte[] destination_address) {
         if(source_address.length == 0 || source_address.length > 6)
             throw new IllegalArgumentException("Source address invalid, length must be less than 7 and non-zero.");
         if(destination_address.length == 0 || destination_address.length > 6)
@@ -49,7 +49,7 @@ public class AX25Protocol {
         return address_field;
     }
 
-    public static byte[] createAddressField(char[] source_address, byte source_ssid, char[] destination_address, byte destination_ssid) {
+    public static byte[] createAddressField(byte[] source_address, byte source_ssid, byte[] destination_address, byte destination_ssid) {
         if(source_address.length == 0 || source_address.length > 6)
             throw new IllegalArgumentException("Source address invalid, length must be less than 7 and non-zero.");
         if(destination_address.length == 0 || destination_address.length > 6)

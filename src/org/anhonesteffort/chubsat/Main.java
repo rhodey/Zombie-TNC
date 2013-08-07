@@ -2,9 +2,13 @@ package org.anhonesteffort.chubsat;
 
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
+import org.anhonesteffort.chubsat.ax25.AX25FrameReceiver;
+import org.anhonesteffort.chubsat.ax25.AX25Protocol;
 import org.anhonesteffort.chubsat.ax25.AX25UIFrame;
 import org.anhonesteffort.chubsat.kiss.KISSPort;
 import org.anhonesteffort.chubsat.kiss.KISSProtocol;
+
+import java.nio.charset.Charset;
 
 public class Main {
 
@@ -18,16 +22,20 @@ public class Main {
             // Create a new KISSPort using the configured serial port and add a KISSDataListener.
             KISSPort tnc = new KISSPort(tncPort);
             KISSDataReceiver dataReceiver = new KISSDataReceiver();
+            AX25FrameReceiver frameReceiver = new AX25FrameReceiver();
             tnc.addKISSDataListener(dataReceiver);
+            tnc.addKISSDataListener(frameReceiver);
 
             // Transmitting arbitrary data.
-            tnc.sendData(0, "ChubSat, truth prevails.".toCharArray());
-            tnc.sendData(0, new byte[]{0, 32, 64});
+            tnc.sendData(0, "ChubSat, truth prevails.".getBytes("US-ASCII"));
 
             // Transmitting AX.25 UI frames.
-            AX25UIFrame frame = new AX25UIFrame("WVTC".toCharArray(), "ALLYOU".toCharArray());
-            frame.setInfoField("ChubSat, truth prevails.".toCharArray());
-            tnc.sendFrame(frame);
+            AX25UIFrame frame = new AX25UIFrame("WVTC".getBytes("US-ASCII"), "ALLYOU".getBytes("US-ASCII"));
+            frame.setInfoField("ChubSat, truth prevails.".getBytes(Charset.forName("US-ASCII")));
+            tnc.sendFrame(0, frame);
+
+            frame.setInfoField("ChubSat, have it your way.".getBytes(Charset.forName("US-ASCII")));
+            tnc.sendFrame(0, frame);
 
             // Clean up.
             //tncPort.closePort();
