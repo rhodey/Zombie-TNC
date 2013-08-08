@@ -1,6 +1,4 @@
-package org.anhonesteffort.chubsat;
-
-import java.io.UnsupportedEncodingException;
+package org.anhonesteffort.commandler;
 
 public class StringUtils {
     static final byte[] HEX_CHAR_TABLE = {

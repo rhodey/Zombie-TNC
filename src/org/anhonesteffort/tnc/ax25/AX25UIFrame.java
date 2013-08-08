@@ -1,7 +1,4 @@
-package org.anhonesteffort.chubsat.ax25;
-
-import org.anhonesteffort.chubsat.StringUtils;
-import org.anhonesteffort.chubsat.ax25.AX25Protocol;
+package org.anhonesteffort.tnc.ax25;
 
 public class AX25UIFrame {
     private byte[] source_address;
@@ -10,23 +7,23 @@ public class AX25UIFrame {
     private byte destination_ssid;
     private byte[] address_field;
 
-    private byte control_field = AX25Protocol.CONTROL_UI_FINAL;
+    private byte control_field = AX25Protocol.CONTROL_UIFRAME_FINAL;
     private byte pid_field = AX25Protocol.PID_NO_LAYER_3_PROTOCOL;
 
     private byte[] info_field = new byte[] {};
 
     public AX25UIFrame(byte[] source_address, byte[] destination_address) {
-        this.source_address = source_address;
+        this.source_address = AX25Protocol.padAddress(source_address);
         this.source_ssid = AX25Protocol.SSID_COMMAND_SOURCE_DEFAULT;
-        this.destination_address = destination_address;
+        this.destination_address = AX25Protocol.padAddress(destination_address);
         this.destination_ssid = AX25Protocol.SSID_COMMAND_DESTINATION_DEFAULT;
         address_field = AX25Protocol.createAddressField(source_address, destination_address);
     }
 
     public AX25UIFrame(byte[] source_address, byte source_ssid, byte[] destination_address, byte destination_ssid) {
-        this.source_address = source_address;
+        this.source_address = AX25Protocol.padAddress(source_address);
         this.source_ssid = source_ssid;
-        this.destination_address = destination_address;
+        this.destination_address = AX25Protocol.padAddress(destination_address);
         this.destination_ssid = destination_ssid;
         address_field = AX25Protocol.createAddressField(source_address, source_ssid, destination_address, destination_ssid);
     }

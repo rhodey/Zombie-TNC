@@ -1,4 +1,4 @@
-package org.anhonesteffort.chubsat.tnc;
+package org.anhonesteffort.tnc;
 
 public class CRC16 {
     private static final int[] table = {

@@ -1,13 +1,17 @@
-package org.anhonesteffort.chubsat.ax25;
+package org.anhonesteffort.tnc.ax25;
 
-import org.anhonesteffort.chubsat.StringUtils;
-import org.anhonesteffort.chubsat.kiss.KISSDataListener;
-import org.anhonesteffort.chubsat.kiss.KISSProtocol;
+import jssc.SerialPortException;
+import org.anhonesteffort.tnc.kiss.KSSDataListener;
+import org.anhonesteffort.tnc.kiss.KISSPort;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-public class AX25FrameReceiver implements KISSDataListener {
+// Does not support layer 2 repeater address encoding.
+public class AX25Port implements KSSDataListener {
+    private KISSPort kissPort;
+    private ArrayList<AX25FrameListener> ax25FrameListeners;
+    private ArrayList<AX25Operator> ax25Operators;
+
     private byte[] received_destination_address = new byte[6];
     private byte[] received_source_address = new byte[6];
     private byte received_destination_ssid;
@@ -19,23 +23,55 @@ public class AX25FrameReceiver implements KISSDataListener {
     private enum AX25State {SEARCH_DESTINATION_ADDRESS, SEARCH_SOURCE_ADDRESS, SEARCH_CONTROL, SEARCH_PID, SEARCH_INFO};
     private AX25State state = AX25State.SEARCH_DESTINATION_ADDRESS;
 
+    public AX25Port(KISSPort kissPort) {
+        this.kissPort = kissPort;
+        this.kissPort.addKISSDataListener(this);
+        ax25FrameListeners = new ArrayList<AX25FrameListener>();
+        ax25Operators = new ArrayList<AX25Operator>();
+    }
+
+    public void addFrameListener(AX25FrameListener listener) {
+        ax25FrameListeners.add(listener);
+    }
+
+    public void removeFrameListener(AX25FrameListener listener) {
+        ax25FrameListeners.remove(listener);
+    }
+
+    public void addOperator(AX25Operator operator) {
+        ax25Operators.add(operator);
+    }
+
+    public void removeOperator(AX25Operator operator) {
+        ax25Operators.remove(operator);
+    }
+
     private void frameComplete() {
         byte[] received_info_field = new byte[receivedInfoField.size()];
         for(int i = 0; i < received_info_field.length; i++)
             received_info_field[i] = receivedInfoField.get(i);
 
-        System.out.println("AX25 frame from tnc: ");
-        System.out.println("destination address: " + new String(received_destination_address));
-        System.out.println("destination ssid: " + Integer.toHexString(received_destination_ssid & 0x000000FF));
-        System.out.println("source address: " + new String(received_source_address));
-        System.out.println("source ssid: " + Integer.toHexString(received_source_ssid & 0x000000FF));
-        System.out.println("control field: " + Integer.toHexString(received_control_field & 0x000000FF));
-        System.out.println("pid field: " + Integer.toHexString(received_pid_field & 0x000000FF));
-        System.out.println("information field: " + new String(received_info_field));
+        for(AX25FrameListener listener : ax25FrameListeners) {
+            listener.onAX25FrameReceived(received_destination_address,
+                    received_destination_ssid,
+                    received_source_address,
+                    received_source_ssid,
+                    received_control_field,
+                    received_pid_field,
+                    received_info_field);
+        }
+
+        for(AX25Operator operator : ax25Operators) {
+            if(new String(received_destination_address).equals(new String(operator.getCallSign())))
+                operator.onFrameReceived(received_source_address,
+                        received_source_ssid,
+                        received_control_field,
+                        received_pid_field,
+                        received_info_field);
+        }
     }
 
     public void onDataReceived(byte[] bytes) {
-
         for(int i = 0; i < bytes.length; i++) {
             switch (state) {
                 case SEARCH_DESTINATION_ADDRESS:
@@ -71,9 +107,6 @@ public class AX25FrameReceiver implements KISSDataListener {
                     break;
 
                 case SEARCH_PID:
-                    if(bytes[i] != AX25Protocol.PID_NO_LAYER_3_PROTOCOL)
-                        return;
-
                     received_pid_field = bytes[i];
                     state = AX25State.SEARCH_INFO;
                     break;
@@ -92,4 +125,11 @@ public class AX25FrameReceiver implements KISSDataListener {
         state = AX25State.SEARCH_DESTINATION_ADDRESS;
     }
 
+    public void sendFrame(AX25UIFrame frame) throws SerialPortException {
+        kissPort.transmitData(frame.toByteArray());
+    }
+
+    public void close() {
+        kissPort.removeKISSFrameListener(this);
+    }
 }

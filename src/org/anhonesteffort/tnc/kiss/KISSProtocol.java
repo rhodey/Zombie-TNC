@@ -1,4 +1,4 @@
-package org.anhonesteffort.chubsat.kiss;
+package org.anhonesteffort.tnc.kiss;
 
 public class KISSProtocol {
     public static final byte CODE_FEND = (byte)0xC0;
@@ -15,22 +15,22 @@ public class KISSProtocol {
     public static final byte COMMAND_SET_HARDWARE = 0x06;
     public static final byte COMMAND_RETURN = (byte)0xFF;
 
-    public static byte createCommandByte(int port, byte command) throws IllegalArgumentException {
+    public static byte createCommandByte(int hdlc_port, byte command) throws IllegalArgumentException {
         byte out;
 
         // Special case return command.
         if(command == COMMAND_RETURN)
             return COMMAND_RETURN;
 
-        else if(port > 15 || port < 0)
-            throw new IllegalArgumentException("Port out of range, values 0 - 15 allowed.");
+        else if(hdlc_port > 0x0F || hdlc_port < 0x00)
+            throw new IllegalArgumentException("HDLC port out of range, values 0 - 15 allowed.");
         else if(command > 0x06)
             throw new IllegalArgumentException("Command out of range, values 0 - 6 allowed.");
 
-        return (byte)((port << 4) | command);
+        return (byte)((hdlc_port << 4) | command);
     }
 
-    // out[0] = port, out[1] = command.
+    // out[0] = hdlc_port, out[1] = command.
     public static byte[] unpackCommandByte(byte command_byte) {
         byte[] out = new byte[2];
 
