@@ -14,8 +14,8 @@ public class AX25Port implements KSSDataListener {
 
     private byte[] received_destination_address = new byte[6];
     private byte[] received_source_address = new byte[6];
-    private byte received_destination_ssid;
-    private byte received_source_ssid;
+    private int received_destination_ssid;
+    private int received_source_ssid;
     private byte received_control_field;
     private byte received_pid_field;
     private ArrayList<Byte> receivedInfoField = new ArrayList<Byte>();
@@ -63,7 +63,8 @@ public class AX25Port implements KSSDataListener {
 
         for(AX25Operator operator : ax25Operators) {
             if(new String(received_destination_address).equals(new String(operator.getCallSign())))
-                operator.onFrameReceived(received_source_address,
+                operator.onFrameReceived(received_destination_ssid,
+                        received_source_address,
                         received_source_ssid,
                         received_control_field,
                         received_pid_field,
@@ -71,6 +72,7 @@ public class AX25Port implements KSSDataListener {
         }
     }
 
+    @Override
     public void onDataReceived(byte[] bytes) {
         for(int i = 0; i < bytes.length; i++) {
             switch (state) {
@@ -81,7 +83,7 @@ public class AX25Port implements KSSDataListener {
                     if(i < 6)
                         received_destination_address[i] = (byte)((bytes[i] >> 1) & 0x7F) ;
                     else if(i == 6) {
-                        received_destination_ssid = bytes[i];
+                        received_destination_ssid = (bytes[i] & 0x1E) >> 1;
                         state = AX25State.SEARCH_SOURCE_ADDRESS;
                     }
                     break;
@@ -96,7 +98,7 @@ public class AX25Port implements KSSDataListener {
                         if((bytes[i] & 0x01) != 0x01)
                             return;
 
-                        received_source_ssid = bytes[i];
+                        received_source_ssid = (bytes[i] & 0x1E) >> 1;
                         state = AX25State.SEARCH_CONTROL;
                     }
                     break;

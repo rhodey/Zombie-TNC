@@ -19,11 +19,11 @@ public class AX25Protocol {
     public static final byte PID_NO_LAYER_3_PROTOCOL = (byte)0xF0;
     public static final byte PID_ESCAPRE_CHARACTER = (byte)0xFF;
 
-    public static final byte SSID_COMMAND_DESTINATION_DEFAULT = (byte)0xE0;
-    public static final byte SSID_COMMAND_SOURCE_DEFAULT = 0x61;
+    public static final int SSID_DEFAULT_DESTINATION = 0;
+    public static final int SSID_DEFAULT_SOURCE = 0;
 
-    public static final byte SSID_RESPONSE_DESTINATION_DEFAULT = 0x60;
-    public static final byte SSID_RESPONSE_SOURCE_DEFAULT = (byte)0xE1;
+    public enum CommandResponseType {COMMAND, RESPONSE};
+    public enum PollFinalType {POLL, FINAL};
 
 
     public static byte[] padAddress(byte[] address) {
@@ -39,7 +39,13 @@ public class AX25Protocol {
         return out;
     }
 
-    public static byte[] createAddressField(byte[] source_address, byte[] destination_address) {
+    public static byte createSSID(int ssid) {
+        if(ssid > 15 || ssid < 0)
+            throw new IllegalArgumentException("SSID out of range, value 0 - 15 allowed.");
+        return (byte)(ssid << 1);
+    }
+
+    public static byte[] createAddressField(CommandResponseType type, byte[] source_address, byte[] destination_address) {
         if(source_address.length == 0 || source_address.length > 6)
             throw new IllegalArgumentException("Source address invalid, length must be less than 7 and non-zero.");
         if(destination_address.length == 0 || destination_address.length > 6)
@@ -56,12 +62,19 @@ public class AX25Protocol {
                 address_field[i] = (byte)(source_address[i - 7] << 1);
         }
 
-        address_field[6] = SSID_COMMAND_DESTINATION_DEFAULT;
-        address_field[13] = SSID_COMMAND_SOURCE_DEFAULT;
+        if(type == CommandResponseType.RESPONSE) {
+            address_field[6] = (byte)((SSID_DEFAULT_DESTINATION & 0x7F) & 0xFE);
+            address_field[13] = (byte)((SSID_DEFAULT_SOURCE | 0x80) | 0x01);
+        }
+        else {
+            address_field[6] = (byte)((SSID_DEFAULT_DESTINATION | 0x80) & 0xFE);
+            address_field[13] = (byte)((SSID_DEFAULT_SOURCE & 0x7F) | 0x01);
+        }
+
         return address_field;
     }
 
-    public static byte[] createAddressField(byte[] source_address, byte source_ssid, byte[] destination_address, byte destination_ssid) {
+    public static byte[] createAddressField(CommandResponseType type, byte[] source_address, byte source_ssid, byte[] destination_address, byte destination_ssid) {
         if(source_address.length == 0 || source_address.length > 6)
             throw new IllegalArgumentException("Source address invalid, length must be less than 7 and non-zero.");
         if(destination_address.length == 0 || destination_address.length > 6)
@@ -78,9 +91,14 @@ public class AX25Protocol {
                 address_field[i] = (byte)(source_address[i - 7] << 1);
         }
 
-        // Make sure the extension bit rules are enforced.
-        address_field[6] = (byte)(source_ssid & 0xFE);
-        address_field[13] = (byte)(destination_ssid | 0x01);
+        if(type == CommandResponseType.RESPONSE) {
+            address_field[6] = (byte)((destination_ssid & 0x7F) & 0xFE);
+            address_field[13] = (byte)((source_ssid | 0x80) | 0x01);
+        }
+        else {
+            address_field[6] = (byte)((destination_ssid | 0x80) & 0xFE);
+            address_field[13] = (byte)((source_ssid & 0x7F) | 0x01);
+        }
         return address_field;
     }
 }

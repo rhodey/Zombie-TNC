@@ -14,10 +14,10 @@ public class AX25UIFrame {
 
     public AX25UIFrame(byte[] source_address, byte[] destination_address) {
         this.source_address = AX25Protocol.padAddress(source_address);
-        this.source_ssid = AX25Protocol.SSID_COMMAND_SOURCE_DEFAULT;
+        this.source_ssid = AX25Protocol.SSID_DEFAULT_SOURCE;
         this.destination_address = AX25Protocol.padAddress(destination_address);
-        this.destination_ssid = AX25Protocol.SSID_COMMAND_DESTINATION_DEFAULT;
-        address_field = AX25Protocol.createAddressField(source_address, destination_address);
+        this.destination_ssid = AX25Protocol.SSID_DEFAULT_DESTINATION;
+        address_field = AX25Protocol.createAddressField(AX25Protocol.CommandResponseType.COMMAND, source_address, destination_address);
     }
 
     public AX25UIFrame(byte[] source_address, byte source_ssid, byte[] destination_address, byte destination_ssid) {
@@ -25,7 +25,7 @@ public class AX25UIFrame {
         this.source_ssid = source_ssid;
         this.destination_address = AX25Protocol.padAddress(destination_address);
         this.destination_ssid = destination_ssid;
-        address_field = AX25Protocol.createAddressField(source_address, source_ssid, destination_address, destination_ssid);
+        address_field = AX25Protocol.createAddressField(AX25Protocol.CommandResponseType.COMMAND, source_address, source_ssid, destination_address, destination_ssid);
     }
 
     public byte[] getSourceAddress() {
