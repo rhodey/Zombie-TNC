@@ -34,12 +34,20 @@ public class SimpleAX25SecondaryStation implements AX25SecondaryStation {
         System.out.println("information field: " + new String(myFrame.getInfoField()));
     }
 
-    public void sendUnnumberedInformation(byte[] destination_address, byte[] information) throws SerialPortException {
-        operator.sendUnnumberedInformation(ssid, destination_address, AX25Protocol.SSID_DEFAULT, information);
+    public void sendUnnumberedInformation(byte[] destination_address, byte[] information) {
+        try {
+            operator.sendUnnumberedInformation(ssid, destination_address, AX25Protocol.SSID_DEFAULT, information);
+        } catch(SerialPortException e) {
+            System.out.println("Serial port error! " + e);
+        }
     }
 
-    public void sendUnnumberedInformation(byte[] destination_address, int destination_ssid, byte[] information) throws SerialPortException {
-        operator.sendUnnumberedInformation(ssid, destination_address, destination_ssid, information);
+    public void sendUnnumberedInformation(byte[] destination_address, int destination_ssid, byte[] information) {
+        try {
+            operator.sendUnnumberedInformation(ssid, destination_address, destination_ssid, information);
+        } catch(SerialPortException e) {
+            System.out.println("Serial port error! " + e);
+        }
     }
 
 }
