@@ -1,10 +1,14 @@
-package org.anhonesteffort.commandler;
+package org.anhonesteffort.tnc;
 
 import jssc.SerialPort;
+import org.anhonesteffort.tnc.ax25.AX25Frame;
 import org.anhonesteffort.tnc.ax25.AX25Operator;
 import org.anhonesteffort.tnc.ax25.AX25Port;
 import org.anhonesteffort.tnc.ax25.AX25Protocol;
-import org.anhonesteffort.tnc.ax25.AX25UIFrame;
+import org.anhonesteffort.tnc.example.SimpleAX25FrameListener;
+import org.anhonesteffort.tnc.example.SimpleAX25Operator;
+import org.anhonesteffort.tnc.example.SimpleAX25SecondaryStation;
+import org.anhonesteffort.tnc.example.SimpleKISSDataListener;
 import org.anhonesteffort.tnc.kiss.KISSPort;
 
 public class Main {
@@ -44,21 +48,29 @@ public class Main {
             SimpleAX25FrameListener ax25FrameListener = new SimpleAX25FrameListener();
             ax25Port.addFrameListener(ax25FrameListener);
 
-            // Creating and transmitting Unnumbered Information Frames manually.
-            AX25UIFrame uiFrame = new AX25UIFrame("CHBSAT".getBytes("ASCII"), "EARTH".getBytes("ASCII"));
+            /*
+              Creating and transmitting Unnumbered Information Frames manually.
+                AX25Frames default to UI Frames with source and destination SSIDs set to 0, C-bits set
+                to COMMAND, Control Field set to UI Frame FINAL and PID set to NO LAYER 3 PROTOCOL
+                implemented (as constructed below).
+             */
+            AX25Frame uiFrame = new AX25Frame("EARTH".getBytes("ASCII"), 0, "CHBSAT".getBytes("ASCII"), 0);
+            uiFrame.setCommandResponseType(AX25Protocol.CommandResponseType.COMMAND);
+            uiFrame.setControlField(AX25Protocol.CONTROL_UIFRAME_FINAL);
+            uiFrame.setPIDField(AX25Protocol.PID_NO_LAYER_3_PROTOCOL);
             uiFrame.setInfoField("ChubSat, have it your way.".getBytes("ASCII"));
             ax25Port.sendFrame(uiFrame);
 
             // Creating an AX25Operator to transmit and receive frames on behalf of a call sign.
-            AX25Operator chubSatOperator = new AX25Operator(ax25Port, "CHBSAT".getBytes("ASCII"));
-            chubSatOperator.sendUnnumberedInformation("EARTH".getBytes("ASCII"), "ChubSat, like tears in the rain.".getBytes("ASCII"));
-            chubSatOperator.sendUnnumberedInformation("CHBSAT".getBytes("ASCII"), "Hello ChubSat, this is ChubSat.".getBytes("ASCII"));
+            SimpleAX25Operator earthOperator = new SimpleAX25Operator(ax25Port, "EARTH".getBytes("ASCII"));
+            earthOperator.sendUnnumberedInformation("CHBSAT".getBytes("ASCII"), "ChubSat, like tears in the rain.".getBytes("ASCII"));
+            earthOperator.sendUnnumberedInformation("EARTH".getBytes("ASCII"), "Hello Earth, this is Earth.".getBytes("ASCII"));
 
-            // Creating an AX25SecondaryStation to transmit and receive frames on behalf of Operator: CHBSAT, SSID: 4.
+            // Creating an AX25SecondaryStation to transmit and receive frames on behalf of Operator: EARTH, SSID: 4.
             SimpleAX25SecondaryStation secondaryStation = new SimpleAX25SecondaryStation(4);
-            chubSatOperator.addSecondaryStation(secondaryStation);
-            secondaryStation.sendUnnumberedInformation("CHBSAT".getBytes("ASCII"), "Hello ChubSat SSID default destination, this is ChubSat SSID 4.".getBytes("ASCII"));
-            secondaryStation.sendUnnumberedInformation("CHBSAT".getBytes("ASCII"), 4, "Hello ChubSat SSID 4, this is ChubSat SSID 4.".getBytes("ASCII"));
+            earthOperator.addSecondaryStation(secondaryStation);
+            secondaryStation.sendUnnumberedInformation("EARTH".getBytes("ASCII"), "Hello Earth SSID default, this is Earth SSID 4.".getBytes("ASCII"));
+            secondaryStation.sendUnnumberedInformation("EARTH".getBytes("ASCII"), 4, "Hello Earth SSID 4, this is Earth SSID 4.".getBytes("ASCII"));
 
             /*
                 Cleaning up

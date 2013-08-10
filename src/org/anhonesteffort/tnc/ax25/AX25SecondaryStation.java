@@ -6,6 +6,6 @@ public interface AX25SecondaryStation {
 
     public int getSSID();
 
-    public void onFrameReceived(byte[] source_address, int source_ssid, byte control_field, byte pid_field, byte[] info_field);
+    public void onAX25FrameReceived(AX25Frame myFrame);
 
 }

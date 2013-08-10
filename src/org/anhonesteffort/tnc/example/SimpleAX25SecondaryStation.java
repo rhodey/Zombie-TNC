@@ -1,6 +1,7 @@
-package org.anhonesteffort.commandler;
+package org.anhonesteffort.tnc.example;
 
 import jssc.SerialPortException;
+import org.anhonesteffort.tnc.ax25.AX25Frame;
 import org.anhonesteffort.tnc.ax25.AX25Operator;
 import org.anhonesteffort.tnc.ax25.AX25Protocol;
 import org.anhonesteffort.tnc.ax25.AX25SecondaryStation;
@@ -24,17 +25,17 @@ public class SimpleAX25SecondaryStation implements AX25SecondaryStation {
     }
 
     @Override
-    public void onFrameReceived(byte[] source_address, int source_ssid, byte control_field, byte pid_field, byte[] info_field) {
+    public void onAX25FrameReceived(AX25Frame myFrame) {
         System.out.println("Secondary Station " + Integer.toHexString(ssid & 0x000000FF) + " received AX25 frame: ");
-        System.out.println("source address: " + new String(source_address));
-        System.out.println("source ssid: " + source_ssid);
-        System.out.println("control field: " + Integer.toHexString(control_field & 0x000000FF));
-        System.out.println("pid field: " + Integer.toHexString(pid_field & 0x000000FF));
-        System.out.println("information field: " + new String(info_field));
+        System.out.println("source address: " + new String(myFrame.getSourceAddress()));
+        System.out.println("source ssid: " + myFrame.getSourceSSID());
+        System.out.println("control field: " + Integer.toHexString(myFrame.getControlField() & 0x000000FF));
+        System.out.println("pid field: " + Integer.toHexString(myFrame.getPIDField() & 0x000000FF));
+        System.out.println("information field: " + new String(myFrame.getInfoField()));
     }
 
     public void sendUnnumberedInformation(byte[] destination_address, byte[] information) throws SerialPortException {
-        operator.sendUnnumberedInformation(ssid, destination_address, AX25Protocol.SSID_DEFAULT_DESTINATION, information);
+        operator.sendUnnumberedInformation(ssid, destination_address, AX25Protocol.SSID_DEFAULT, information);
     }
 
     public void sendUnnumberedInformation(byte[] destination_address, int destination_ssid, byte[] information) throws SerialPortException {
