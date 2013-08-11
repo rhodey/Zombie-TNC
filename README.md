@@ -20,7 +20,7 @@ KISS TNC
   serialPort.setParams(SerialPort.BAUDRATE_9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
   
   // Creating a KISSPort for High-Level Data Link Control port 0.
-  KISSPort kissTNC0 = new KISSPort(0, serialPort);
+  KISSPort kissTNC0 = new KISSPort(serialPort, 0);
   
   // Adding a KSSDataListener to process data received by the KISSPort.
   SimpleKISSDataListener kissDataListener = new SimpleKISSDataListener();

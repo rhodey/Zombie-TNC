@@ -2,32 +2,29 @@ package org.anhonesteffort.tnc.kiss;
 
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
+import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
 import java.util.ArrayList;
 
-public class KISSPort /*implements SerialPortEventListener*/ {
+public class KISSPort implements SerialPortEventListener {
     private byte hdlc_port;
-    private SerialPort serialPort;
-    private ArrayList<KSSDataListener> kssDataFrameListeners;
     private byte received_hdlc_port;
     private byte received_command;
-    private ArrayList<Byte> receivedData;
-
-    SerialPortEvent fakeEvent = new SerialPortEvent("COM9", SerialPortEvent.RXCHAR, 20);
+    private SerialPort serialPort;
+    private ArrayList<Byte> receivedData = new ArrayList<Byte>();
+    private ArrayList<KSSDataListener> kssDataFrameListeners = new ArrayList<KSSDataListener>();
 
     private enum KISSState {SEARCH_FEND, SEARCH_COMMAND, SEARCH_DATA};
     private KISSState state = KISSState.SEARCH_FEND;
 
-    public KISSPort(int hdlc_port, SerialPort serialPort) throws SerialPortException {
+    public KISSPort(SerialPort serialPort, int hdlc_port) throws SerialPortException {
         if(hdlc_port > 0x0F | hdlc_port < 0x00)
             throw new IllegalArgumentException("HDLC port out of range, values 0 - 15 allowed.");
 
         this.hdlc_port = (byte)hdlc_port;
         this.serialPort = serialPort;
-        //this.serialPort.addEventListener(this);
-        kssDataFrameListeners = new ArrayList<KSSDataListener>();
-        receivedData = new ArrayList<Byte>();
+        serialPort.addEventListener(this);
     }
 
     private void callFrameListeners() {
@@ -45,12 +42,12 @@ public class KISSPort /*implements SerialPortEventListener*/ {
         }
     }
 
-    public void serialEvent(SerialPortEvent serialPortEvent, byte[] bytes) {
-        //byte[] bytes;
+    public void serialEvent(SerialPortEvent serialPortEvent) {
+        byte[] bytes;
 
         if(serialPortEvent.isRXCHAR()) {
-            //try {
-                //bytes = serialPort.readBytes();
+            try {
+                bytes = serialPort.readBytes();
                 for(int i = 0; i < bytes.length; i++) {
                     switch (state) {
                         case SEARCH_FEND:
@@ -78,10 +75,10 @@ public class KISSPort /*implements SerialPortEventListener*/ {
                             break;
                     }
                 }
-            //}
-            //catch (SerialPortException e) {
-            //    System.out.println("Error reading bytes from port: " + e);
-            //}
+            }
+            catch (SerialPortException e) {
+                System.out.println("Error reading bytes from port! " + e);
+            }
         }
     }
 
@@ -106,9 +103,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        serialEvent(fakeEvent, frame);
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
     public void setHalfDuplex() throws SerialPortException {
@@ -118,8 +114,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
         frame[2] = 0x00;
         frame[3] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
     public void setFullDuplex() throws SerialPortException {
@@ -129,8 +125,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
         frame[2] = 0x01;
         frame[3] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
     public void setTransmitterDelay(int ms) throws SerialPortException {
@@ -149,8 +145,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
     public void setTransmitterTail(int ms) throws SerialPortException {
@@ -169,8 +165,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
     public void setPersistenceParameter(byte p) throws SerialPortException {
@@ -186,8 +182,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
     public void setSlotTime(int ms) throws SerialPortException {
@@ -206,8 +202,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
     public void setHardware(byte[] data) throws SerialPortException {
@@ -223,8 +219,8 @@ public class KISSPort /*implements SerialPortEventListener*/ {
             frame[i + 2] = escaped_data[i];
         frame[frame.length - 1] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
     public void exitKISSMode() throws SerialPortException {
@@ -234,11 +230,11 @@ public class KISSPort /*implements SerialPortEventListener*/ {
         frame[2] = (byte)0xFF;
         frame[3] = KISSProtocol.CODE_FEND;
 
-        System.out.println("KISS frame transmitted: " + new String(frame));
-        //serialPort.writeBytes(frame);
+        //System.out.println("KISS frame transmitted: " + new String(frame));
+        serialPort.writeBytes(frame);
     }
 
-    public void close() {
-        //serialPort.removeEventListener(this);
+    public void close() throws SerialPortException {
+        serialPort.removeEventListener();
     }
 }
