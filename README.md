@@ -29,8 +29,9 @@ kissTNC0.addKISSDataListener(kissDataListener);
 // Transmitting arbitrary data through the TNC.
 kissTNC0.transmitData("ChubSat, truth prevails.".getBytes("ASCII"));
 
-// Clean up
+// Clean up.
 kissTNC0.close();
+serialPort.closePort();
 ```
   
 AX.25
@@ -69,10 +70,11 @@ earthOperator.addSecondaryStation(secondaryStation);
 secondaryStation.sendUnnumberedInformation("CHBSAT".getBytes("ASCII"), "Hello CHBSAT SSID default, this is EARTH SSID 4.".getBytes("ASCII"));
 secondaryStation.sendUnnumberedInformation("CHBSAT".getBytes("ASCII"), 4, "Hello CHBSAT SSID 4, this is EARTH SSID 4.".getBytes("ASCII"));
 
-// Clean up
-ax25Port.removeFrameListener(ax25FrameListener);
+// Clean up.
 earthOperator.removeSecondaryStation(secondaryStation);
 earthOperator.quit();
+ax25Port.removeFrameListener(ax25FrameListener);
+ax25Port.close();
 ```
   
 HDLC
