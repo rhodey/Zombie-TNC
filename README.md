@@ -48,10 +48,10 @@ ax25Port.addFrameListener(ax25FrameListener);
 
 /*
   Creating and transmitting Unnumbered Information Frames manually...
-    AX25Frames default to UI Frames with source and destination SSIDs set to 0, C-bits set
-    to COMMAND, Control Field set to UI Frame FINAL and PID set to NO LAYER 3 PROTOCOL
+    AX25Frames default to UI Frames with source and destination SSIDs set to 0, C-bits
+    set to COMMAND, Control Field set to UI Frame FINAL and PID set to NO LAYER 3 PROTOCOL
     implemented (as constructed below).
- */
+*/
 AX25Frame uiFrame = new AX25Frame("EARTH".getBytes("ASCII"), 0, "CHBSAT".getBytes("ASCII"), 0);
 uiFrame.setCommandResponseType(AX25Protocol.CommandResponseType.COMMAND);
 uiFrame.setControlField(AX25Protocol.CONTROL_UIFRAME_FINAL);
